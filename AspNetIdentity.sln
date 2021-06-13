@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetIdentity", "AspNetIdentity\AspNetIdentity.csproj", "{DB1527E0-19CC-4CE1-B8F4-6D39BAB528AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB1527E0-19CC-4CE1-B8F4-6D39BAB528AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB1527E0-19CC-4CE1-B8F4-6D39BAB528AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB1527E0-19CC-4CE1-B8F4-6D39BAB528AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB1527E0-19CC-4CE1-B8F4-6D39BAB528AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {692C589C-E67F-4A94-AFFD-16C1B36A685F}
+	EndGlobalSection
+EndGlobal
