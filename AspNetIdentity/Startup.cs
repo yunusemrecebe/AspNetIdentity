@@ -1,6 +1,9 @@
+using AspNetIdentity.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,15 +16,23 @@ namespace AspNetIdentity
 {
     public class Startup
     {
+        public IConfiguration _configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //DbContext Tanýmlanýyor. ConnectionString 'appsettings.json' içerisinden alýnýyor.
+            services.AddDbContext<AppIdentityDbContext>(options =>
+            {
+                options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
+            });
+
+            //Asp.Net Identity kütüphanesi ekleniyor.
+            services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
@@ -40,6 +51,7 @@ namespace AspNetIdentity
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
+            app.UseAuthentication();
         }
     }
 }
