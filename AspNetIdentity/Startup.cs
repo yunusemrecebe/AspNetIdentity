@@ -32,7 +32,13 @@ namespace AspNetIdentity
             });
 
             //Asp.Net Identity kütüphanesi ekleniyor.
-            services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            services.AddIdentity<AppUser, IdentityRole>(options => {
+                options.Password.RequiredLength = 3;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+            }).AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
