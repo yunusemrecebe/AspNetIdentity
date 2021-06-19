@@ -1,16 +1,12 @@
+using AspNetIdentity.CustomValidators;
 using AspNetIdentity.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AspNetIdentity
 {
@@ -32,13 +28,14 @@ namespace AspNetIdentity
             });
 
             //Asp.Net Identity kütüphanesi ekleniyor.
-            services.AddIdentity<AppUser, IdentityRole>(options => {
+            services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
                 options.Password.RequiredLength = 3;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
-            }).AddEntityFrameworkStores<AppIdentityDbContext>();
+            }).AddPasswordValidator<CustomPasswordValidator>().AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
