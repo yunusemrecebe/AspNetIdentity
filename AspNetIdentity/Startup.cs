@@ -2,11 +2,13 @@ using AspNetIdentity.CustomValidators;
 using AspNetIdentity.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 
 namespace AspNetIdentity
 {
@@ -25,6 +27,24 @@ namespace AspNetIdentity
             services.AddDbContext<AppIdentityDbContext>(options =>
             {
                 options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
+            });
+
+            //Authentication için Cookie Ayarlarý
+            CookieBuilder cookieBuilder = new CookieBuilder() 
+            {
+                Name = "MyBlog",
+                HttpOnly = false,
+                Expiration = TimeSpan.FromDays(60),
+                SameSite = SameSiteMode.Lax,
+                SecurePolicy = CookieSecurePolicy.SameAsRequest
+            };
+
+            //Authentication için ayarlanan cookie'nin sisteme eklenmesi
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = new PathString("/Home/LogIn");
+                options.Cookie = cookieBuilder;
+                options.SlidingExpiration = true;
             });
 
             //Asp.Net Identity kütüphanesi ekleniyor.
