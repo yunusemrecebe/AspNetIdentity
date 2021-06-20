@@ -34,7 +34,6 @@ namespace AspNetIdentity
             {
                 Name = "MyBlog",
                 HttpOnly = false,
-                Expiration = TimeSpan.FromDays(60),
                 SameSite = SameSiteMode.Lax,
                 SecurePolicy = CookieSecurePolicy.SameAsRequest
             };
@@ -44,6 +43,7 @@ namespace AspNetIdentity
             {
                 options.LoginPath = new PathString("/Home/LogIn");
                 options.Cookie = cookieBuilder;
+                options.ExpireTimeSpan = TimeSpan.FromDays(60);
                 options.SlidingExpiration = true;
             });
 

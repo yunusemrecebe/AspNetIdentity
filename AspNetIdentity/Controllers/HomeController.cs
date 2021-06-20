@@ -6,16 +6,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace AspNetIdentity.Controllers
 {
     public class HomeController : Controller
     {
         public UserManager<AppUser> _userManager { get; }
+        public SignInManager<AppUser> _signInManager { get; set; }
 
-        public HomeController(UserManager<AppUser> userManager)
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -25,6 +28,32 @@ namespace AspNetIdentity.Controllers
 
         public IActionResult LogIn()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogIn(LoginViewModel loginViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser user = await _userManager.FindByEmailAsync(loginViewModel.Email);
+
+                if (user != null)
+                {
+                    await _signInManager.SignOutAsync();
+                    SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, false, false);
+
+                    if (signInResult.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Member");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Böyle bir kullanıcı bulunamadı!");
+                }
+            }
+
             return View();
         }
 
