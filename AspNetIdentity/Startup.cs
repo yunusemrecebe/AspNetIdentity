@@ -30,6 +30,9 @@ namespace AspNetIdentity
             //Asp.Net Identity kütüphanesi ekleniyor.
             services.AddIdentity<AppUser, IdentityRole>(options =>
             {
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters = "abcçdefghýijklmnoöpqrsþtuüvwxyzABCÇDEFGHIÝJKLMNOÖPQRSTUÜVWXYZ0123456789-._";
+
                 options.Password.RequiredLength = 3;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
