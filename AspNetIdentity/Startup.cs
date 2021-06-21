@@ -29,8 +29,24 @@ namespace AspNetIdentity
                 options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
             });
 
+            //Asp.Net Identity kütüphanesi ekleniyor.
+            services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters = "abcçdefghýijklmnoöpqrsþtuüvwxyzABCÇDEFGHIÝJKLMNOÖPQRSTUÜVWXYZ0123456789-._";
+
+                options.Password.RequiredLength = 3;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+            }).AddPasswordValidator<CustomPasswordValidator>()
+            .AddUserValidator<CustomUserValidator>()
+            .AddErrorDescriber<CustomIdentityErrorDescriber>()
+            .AddEntityFrameworkStores<AppIdentityDbContext>();
+
             //Authentication için Cookie Ayarlarý
-            CookieBuilder cookieBuilder = new CookieBuilder() 
+            CookieBuilder cookieBuilder = new CookieBuilder()
             {
                 Name = "MyBlog",
                 HttpOnly = false,
@@ -47,21 +63,6 @@ namespace AspNetIdentity
                 options.SlidingExpiration = true;
             });
 
-            //Asp.Net Identity kütüphanesi ekleniyor.
-            services.AddIdentity<AppUser, IdentityRole>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-                options.User.AllowedUserNameCharacters = "abcçdefghýijklmnoöpqrsþtuüvwxyzABCÇDEFGHIÝJKLMNOÖPQRSTUÜVWXYZ0123456789-._";
-
-                options.Password.RequiredLength = 3;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireDigit = false;
-            }).AddPasswordValidator<CustomPasswordValidator>()
-            .AddUserValidator<CustomUserValidator>()
-            .AddErrorDescriber<CustomIdentityErrorDescriber>()
-            .AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
@@ -79,8 +80,8 @@ namespace AspNetIdentity
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
             app.UseAuthentication();
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

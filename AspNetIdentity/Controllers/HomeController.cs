@@ -26,8 +26,10 @@ namespace AspNetIdentity.Controllers
             return View();
         }
 
-        public IActionResult LogIn()
+        public IActionResult LogIn(string ReturnUrl)
         {
+            TempData["ReturnUrl"] = ReturnUrl;
+
             return View();
         }
 
@@ -41,10 +43,15 @@ namespace AspNetIdentity.Controllers
                 if (user != null)
                 {
                     await _signInManager.SignOutAsync();
-                    SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, false, false);
+                    SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, loginViewModel.RememberMe, false);
 
                     if (signInResult.Succeeded)
                     {
+                        if (TempData["ReturnUrl"] != null)
+                        {
+                            return Redirect(TempData["ReturnUrl"].ToString());
+                        }
+
                         return RedirectToAction("Index", "Member");
                     }
                 }
@@ -54,7 +61,7 @@ namespace AspNetIdentity.Controllers
                 }
             }
 
-            return View();
+            return View(loginViewModel);
         }
 
         public IActionResult SignUp()

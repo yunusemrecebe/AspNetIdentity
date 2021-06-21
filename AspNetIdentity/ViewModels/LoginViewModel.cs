@@ -18,5 +18,7 @@ namespace AspNetIdentity.ViewModels
         [DataType(DataType.Password)]
         [MinLength(3, ErrorMessage = "Parola en az 3 karakterden oluşmalıdır!")]
         public string Password { get; set; }
+
+        public bool RememberMe { get; set; }
     }
 }
