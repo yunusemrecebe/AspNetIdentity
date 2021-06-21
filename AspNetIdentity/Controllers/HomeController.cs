@@ -42,17 +42,39 @@ namespace AspNetIdentity.Controllers
 
                 if (user != null)
                 {
+                    if (await _userManager.IsLockedOutAsync(user))
+                    {
+                        ModelState.AddModelError("", "3 defa hatalı giriş denemesi yaptığınızdan ötürü hesabınız bir süre kilitli kalacaktır!");
+
+                        return View(loginViewModel);
+                    }
+
                     await _signInManager.SignOutAsync();
                     SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, loginViewModel.RememberMe, false);
 
                     if (signInResult.Succeeded)
                     {
+                        await _userManager.ResetAccessFailedCountAsync(user);
+
                         if (TempData["ReturnUrl"] != null)
                         {
                             return Redirect(TempData["ReturnUrl"].ToString());
                         }
 
                         return RedirectToAction("Index", "Member");
+                    }
+                    await _userManager.AccessFailedAsync(user);
+                    int accessFailedCount = await _userManager.GetAccessFailedCountAsync(user);
+
+                    if (accessFailedCount == 3)
+                    {
+                        await _userManager.SetLockoutEndDateAsync(user, new DateTimeOffset(DateTime.Now.AddMinutes(20)));
+
+                        ModelState.AddModelError("", "3 Defa hatalı giriş denemesi yaptığınızdan ötürü hesabınız 20 dakika boyunca kilitli kalacaktır!");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", $"{3 - accessFailedCount} defa hatalı deneme hakkınız kalmıştır.");
                     }
                 }
                 else
