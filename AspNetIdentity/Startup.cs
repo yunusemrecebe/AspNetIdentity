@@ -43,6 +43,7 @@ namespace AspNetIdentity
             }).AddPasswordValidator<CustomPasswordValidator>()
             .AddUserValidator<CustomUserValidator>()
             .AddErrorDescriber<CustomIdentityErrorDescriber>()
+            .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<AppIdentityDbContext>();
 
             //Authentication için Cookie Ayarlarý

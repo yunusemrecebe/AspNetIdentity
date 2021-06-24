@@ -3,8 +3,6 @@ using AspNetIdentity.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -128,8 +126,58 @@ namespace AspNetIdentity.Controllers
             if (user != null)
             {
                 string passwordResetToken = _userManager.GeneratePasswordResetTokenAsync(user).Result;
+                string passwordResetLink = Url.Action("ResetPasswordConfirm", "Home", new { userId = user.Id, token = passwordResetToken }, HttpContext.Request.Scheme);
+                Helpers.PasswordReset.PasswordResetSendEmail(passwordResetLink);
+                ViewBag.status = "Success";
             }
+            else
+            {
+                ModelState.AddModelError("", "Sistemde böyle bir email adresi bulunamadı!");
+            }
+
+            return View(passwordResetViewModel);
+        }
+
+        public IActionResult ResetPasswordConfirm(string userId, string token)
+        {
+            TempData["userId"] = userId;
+            TempData["resetPasswordConfirmToken"] = token;
+
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPasswordConfirm([Bind("NewPassword")] PasswordResetViewModel passwordResetViewModel)
+        {
+            string userId = TempData["userId"].ToString();
+            string token = TempData["resetPasswordConfirmToken"].ToString();
+
+            AppUser user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                IdentityResult identityResult = await _userManager.ResetPasswordAsync(user, token, passwordResetViewModel.NewPassword);
+
+                if (identityResult.Succeeded)
+                {
+                    await _userManager.UpdateSecurityStampAsync(user);
+
+                    TempData["passwordResetInfo"] = "Parola başarıyla sıfırlanmıştır. Yeni parolanız ile giriş yapabilirsiniz";
+                }
+                else
+                {
+                    foreach (var item in identityResult.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Bir hata oluştu!");
+            }
+
+            return View(passwordResetViewModel);
         }
     }
 }
