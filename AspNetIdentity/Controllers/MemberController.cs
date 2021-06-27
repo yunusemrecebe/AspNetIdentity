@@ -26,5 +26,48 @@ namespace AspNetIdentity.Controllers
 
             return View(userViewModel);
         }
+
+        public IActionResult PasswordChange()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult PasswordChange(PasswordChangeViewModel passwordChangeViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+                if (user != null)
+                {
+                    bool isOldPasswordTrue = _userManager.CheckPasswordAsync(user, passwordChangeViewModel.OldPassword).Result;
+
+                    if (isOldPasswordTrue)
+                    {
+                        IdentityResult result = _userManager.ChangePasswordAsync(user, passwordChangeViewModel.OldPassword, passwordChangeViewModel.NewPassword).Result;
+                        if (result.Succeeded)
+                        {
+                            _userManager.UpdateSecurityStampAsync(user);
+                            _signInManager.SignOutAsync();
+                            _signInManager.PasswordSignInAsync(user, passwordChangeViewModel.NewPassword, true, false);
+                            ViewBag.status = true;
+                        }
+                        else
+                        {
+                            foreach (var item in result.Errors)
+                            {
+                                ModelState.AddModelError("", item.Description);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Eski parolayı hatalı girdiniz!");
+                    }
+                }
+            }
+
+            return View(passwordChangeViewModel);
+        }
     }
 }
