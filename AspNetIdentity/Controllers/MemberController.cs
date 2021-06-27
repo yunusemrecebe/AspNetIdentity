@@ -4,6 +4,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace AspNetIdentity.Controllers
 {
@@ -23,6 +24,47 @@ namespace AspNetIdentity.Controllers
         {
             AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
             UserViewModel userViewModel = user.Adapt<UserViewModel>();
+
+            return View(userViewModel);
+        }
+
+        public IActionResult UserEdit()
+        {
+            AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+            UserViewModel userViewModel = user.Adapt<UserViewModel>();
+
+            return View(userViewModel);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UserEdit(UserViewModel userViewModel)
+        {
+            ModelState.Remove("Password");
+
+            if (ModelState.IsValid)
+            {
+                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+                user.UserName = userViewModel.UserName;
+                user.Email = userViewModel.Email;
+                user.PhoneNumber = userViewModel.PhoneNumber;
+
+                IdentityResult identityResult = await _userManager.UpdateAsync(user);
+                if (identityResult.Succeeded)
+                {
+                    await _userManager.UpdateSecurityStampAsync(user);
+                    await _signInManager.SignOutAsync();
+                    await _signInManager.SignInAsync(user, true);
+                    ViewBag.status = true;
+                }
+                else
+                {
+                    foreach (var item in identityResult.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                }
+            }
 
             return View(userViewModel);
         }
