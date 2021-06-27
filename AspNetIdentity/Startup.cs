@@ -59,6 +59,7 @@ namespace AspNetIdentity
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = new PathString("/Home/LogIn");
+                options.LogoutPath = new PathString("/Member/LogOut");
                 options.Cookie = cookieBuilder;
                 options.ExpireTimeSpan = TimeSpan.FromDays(60);
                 options.SlidingExpiration = true;

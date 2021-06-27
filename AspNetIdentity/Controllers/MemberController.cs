@@ -111,5 +111,10 @@ namespace AspNetIdentity.Controllers
 
             return View(passwordChangeViewModel);
         }
+
+        public void LogOut()
+        {
+            _signInManager.SignOutAsync();
+        }
     }
 }
