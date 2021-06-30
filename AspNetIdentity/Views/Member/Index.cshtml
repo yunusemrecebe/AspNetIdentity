@@ -8,7 +8,15 @@
 <h3 class="text-center">Kullanıcı Bilgileri</h3>
 <div class="row">
     <div class="col-sm-3">
-        <img style="width:100%; height: 100%;" src="~/images/UserImages/user.webp" />
+        @if (Model.Picture != null)
+        {
+            <img style="width:100%; height: 100%;" src="@Model.Picture" />
+        }
+        else
+        {
+            <img style="width:100%; height: 100%;" src="~/images/UserImages/user.webp" />
+        }
+
     </div>
     <div class="col-sm-9">
         <table class="table table-bordered table-striped">
@@ -23,6 +31,18 @@
             <tr>
                 <th>Telefon Numarası</th>
                 <td>@Model.PhoneNumber</td>
+            </tr>
+            <tr>
+                <th>Şehir</th>
+                <td>@Model.City</td>
+            </tr>
+            <tr>
+                <th>Doğum Tarihi</th>
+                <td>@Model.BirthDay.Value.ToShortDateString()</td>
+            </tr>
+            <tr>
+                <th>Cinsiyet</th>
+                <td>@Model.Gender</td>
             </tr>
         </table>
     </div>
