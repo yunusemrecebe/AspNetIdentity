@@ -1,4 +1,4 @@
-using AspNetIdentity.CustomValidators;
+ï»¿using AspNetIdentity.CustomValidators;
 using AspNetIdentity.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,17 +23,17 @@ namespace AspNetIdentity
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //DbContext Tanımlanıyor. ConnectionString 'appsettings.json' içerisinden alınıyor.
+            //DbContext TanÄ±mlanÄ±yor. ConnectionString 'appsettings.json' iÃ§erisinden alÃ½nÃ½yor.
             services.AddDbContext<AppIdentityDbContext>(options =>
             {
                 options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
             });
 
-            //Asp.Net Identity kütüphanesi ekleniyor.
-            services.AddIdentity<AppUser, IdentityRole>(options =>
+            //Asp.Net Identity kÃ¼tÃ¼phanesi ekleniyor.
+            services.AddIdentity<AppUser, AppRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.User.AllowedUserNameCharacters = "abcçdefghıijklmnoöpqrsştuüvwxyzABCÇDEFGHIİJKLMNOÖPQRSTUÜVWXYZ0123456789-._";
+                options.User.AllowedUserNameCharacters = "abcÃ§defghÃ½ijklmnoÃ¶pqrsÃ¾tuÃ¼vwxyzABCÃ‡DEFGHIÃJKLMNOÃ–PQRSTUÃœVWXYZ0123456789-._";
 
                 options.Password.RequiredLength = 3;
                 options.Password.RequireNonAlphanumeric = false;
@@ -46,7 +46,7 @@ namespace AspNetIdentity
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<AppIdentityDbContext>();
 
-            //Authentication için Cookie Ayarları
+            //Authentication iÃ§in Cookie AyarlarÃ½
             CookieBuilder cookieBuilder = new CookieBuilder()
             {
                 Name = "MyBlog",
@@ -55,7 +55,7 @@ namespace AspNetIdentity
                 SecurePolicy = CookieSecurePolicy.SameAsRequest
             };
 
-            //Authentication için ayarlanan cookie'nin sisteme eklenmesi
+            //Authentication iÃ§in ayarlanan cookie'nin sisteme eklenmesi
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = new PathString("/Home/LogIn");
@@ -63,6 +63,7 @@ namespace AspNetIdentity
                 options.Cookie = cookieBuilder;
                 options.ExpireTimeSpan = TimeSpan.FromDays(60);
                 options.SlidingExpiration = true;
+                options.AccessDeniedPath = new PathString("/Member/AccessDenied");
             });
 
             services.AddMvc(option => option.EnableEndpointRouting = false);

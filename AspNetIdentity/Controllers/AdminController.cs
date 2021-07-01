@@ -5,16 +5,18 @@ using System.Linq;
 
 namespace AspNetIdentity.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
-        private UserManager<AppUser> _userManager { get; }
-
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) : base(userManager, null, roleManager)
         {
-            _userManager = userManager;
         }
 
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Users()
         {
             return View(_userManager.Users.ToList());
         }
