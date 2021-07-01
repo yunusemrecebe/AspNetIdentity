@@ -14,20 +14,15 @@ using System.Threading.Tasks;
 namespace AspNetIdentity.Controllers
 {
     [Authorize]
-    public class MemberController : Controller
+    public class MemberController : BaseController
     {
-        public UserManager<AppUser> _userManager { get; }
-        public SignInManager<AppUser> _signInManager { get; }
-
-        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : base(userManager, signInManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
         }
 
         public IActionResult Index()
         {
-            AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+            AppUser user = CurrentUser;
             UserViewModel userViewModel = user.Adapt<UserViewModel>();
 
             return View(userViewModel);
@@ -35,7 +30,7 @@ namespace AspNetIdentity.Controllers
 
         public IActionResult UserEdit()
         {
-            AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+            AppUser user = CurrentUser;
             UserViewModel userViewModel = user.Adapt<UserViewModel>();
             ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
 
@@ -50,7 +45,7 @@ namespace AspNetIdentity.Controllers
 
             if (ModelState.IsValid)
             {
-                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+                AppUser user = CurrentUser;
 
                 if (userPicture != null && userPicture.Length > 0)
                 {
@@ -71,7 +66,7 @@ namespace AspNetIdentity.Controllers
                 user.Gender = (int)userViewModel.Gender;
 
                 IdentityResult identityResult = await _userManager.UpdateAsync(user);
-                
+
                 if (identityResult.Succeeded)
                 {
                     await _userManager.UpdateSecurityStampAsync(user);
@@ -81,10 +76,7 @@ namespace AspNetIdentity.Controllers
                 }
                 else
                 {
-                    foreach (var item in identityResult.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-                    }
+                    AddModelError(identityResult);
                 }
             }
 
@@ -101,7 +93,7 @@ namespace AspNetIdentity.Controllers
         {
             if (ModelState.IsValid)
             {
-                AppUser user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+                AppUser user = CurrentUser;
                 if (user != null)
                 {
                     bool isOldPasswordTrue = _userManager.CheckPasswordAsync(user, passwordChangeViewModel.OldPassword).Result;
@@ -118,10 +110,7 @@ namespace AspNetIdentity.Controllers
                         }
                         else
                         {
-                            foreach (var item in result.Errors)
-                            {
-                                ModelState.AddModelError("", item.Description);
-                            }
+                            AddModelError(result);
                         }
                     }
                     else

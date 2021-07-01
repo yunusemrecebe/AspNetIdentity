@@ -8,15 +8,10 @@ using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace AspNetIdentity.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        public UserManager<AppUser> _userManager { get; }
-        public SignInManager<AppUser> _signInManager { get; set; }
-
-        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager):base(userManager, signInManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -110,10 +105,7 @@ namespace AspNetIdentity.Controllers
                 {
                     return RedirectToAction("LogIn");
                 }
-                foreach (var item in result.Errors)
-                {
-                    ModelState.AddModelError("", item.Description);
-                }
+                AddModelError(result);
             }
 
             return View(userViewModel);
@@ -170,11 +162,7 @@ namespace AspNetIdentity.Controllers
                 }
                 else
                 {
-                    foreach (var item in identityResult.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-
-                    }
+                    AddModelError(identityResult);
                 }
             }
             else
