@@ -1,5 +1,6 @@
 ﻿using AspNetIdentity.Models;
 using AspNetIdentity.ViewModels;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -54,6 +55,37 @@ namespace AspNetIdentity.Controllers
                 IdentityResult identityResult = _roleManager.DeleteAsync(appRole).Result;
             }
             return RedirectToAction("Roles");
+        }
+
+        public IActionResult RoleUpdate(string id)
+        {
+            AppRole appRole = _roleManager.FindByIdAsync(id).Result;
+
+            if (appRole != null)
+            {
+                return View(appRole.Adapt<RoleViewModel>());
+            }
+            return RedirectToAction("Roles");
+        }
+
+        [HttpPost]
+        public IActionResult RoleUpdate(RoleViewModel roleViewModel)
+        {
+            AppRole role = _roleManager.FindByIdAsync(roleViewModel.Id).Result;
+
+            if (role != null)
+            {
+                role.Name = roleViewModel.Name;
+                IdentityResult result = _roleManager.UpdateAsync(role).Result;
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Roles");
+                }
+                AddModelError(result);
+            }
+            ModelState.AddModelError("", "Güncelleme işlemi başarısız oldu!");
+            return View(roleViewModel);
         }
 
         public IActionResult Users()
