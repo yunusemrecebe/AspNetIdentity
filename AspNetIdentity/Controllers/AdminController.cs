@@ -1,6 +1,7 @@
 ﻿using AspNetIdentity.Models;
 using AspNetIdentity.ViewModels;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 
 namespace AspNetIdentity.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
         public AdminController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) : base(userManager, null, roleManager)
@@ -134,10 +136,12 @@ namespace AspNetIdentity.Controllers
                 if (role.IsSelected)
                 {
                     _userManager.AddToRoleAsync(user, role.RoleName).Wait();
+                    _userManager.UpdateSecurityStampAsync(user).Wait();
                 }
                 else
                 {
                     _userManager.RemoveFromRoleAsync(user, role.RoleName).Wait();
+                    _userManager.UpdateSecurityStampAsync(user).Wait();
                 }
             }
 
