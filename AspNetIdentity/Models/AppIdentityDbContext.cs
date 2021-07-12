@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AspNetIdentity.Models
 {
-    public class AppIdentityDbContext : IdentityDbContext<AppUser>
+    public class AppIdentityDbContext : IdentityDbContext<AppUser, AppRole, string>
     {
 
         public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options) : base(options)
