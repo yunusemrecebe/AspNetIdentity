@@ -3,6 +3,7 @@ using AspNetIdentity.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AspNetIdentity.Controllers
@@ -86,6 +87,61 @@ namespace AspNetIdentity.Controllers
             }
             ModelState.AddModelError("", "Güncelleme işlemi başarısız oldu!");
             return View(roleViewModel);
+        }
+
+        public IActionResult RoleAssign(string id)
+        {
+            TempData["userId"] = id;
+            AppUser user = _userManager.FindByIdAsync(id).Result;
+
+            ViewBag.userName = user.UserName;
+
+            IQueryable<AppRole> roles = _roleManager.Roles;
+
+            List<string> userRoles = _userManager.GetRolesAsync(user).Result.ToList();
+
+            List<RoleAssignViewModel> roleAssignViewModels = new List<RoleAssignViewModel>();
+
+            foreach (var role in roles)
+            {
+                RoleAssignViewModel roleAssignViewModel = new RoleAssignViewModel();
+                roleAssignViewModel.RoleId = role.Id;
+                roleAssignViewModel.RoleName = role.Name;
+
+                if (userRoles.Contains(role.Name))
+                {
+                    roleAssignViewModel.IsSelected = true;
+                }
+                else
+                {
+                    roleAssignViewModel.IsSelected = false;
+                }
+
+                roleAssignViewModels.Add(roleAssignViewModel);
+            }
+
+
+            return View(roleAssignViewModels);
+        }
+
+        [HttpPost]
+        public IActionResult RoleAssign(List<RoleAssignViewModel> roleAssignViewModels)
+        {
+            AppUser user = _userManager.FindByIdAsync(TempData["userId"].ToString()).Result;
+
+            foreach (var role in roleAssignViewModels)
+            {
+                if (role.IsSelected)
+                {
+                    _userManager.AddToRoleAsync(user, role.RoleName).Wait();
+                }
+                else
+                {
+                    _userManager.RemoveFromRoleAsync(user, role.RoleName).Wait();
+                }
+            }
+
+            return RedirectToAction("Users");
         }
 
         public IActionResult Users()
