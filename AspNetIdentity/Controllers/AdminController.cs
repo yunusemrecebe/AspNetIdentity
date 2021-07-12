@@ -45,6 +45,17 @@ namespace AspNetIdentity.Controllers
             return View(_roleManager.Roles.ToList());
         }
 
+        public IActionResult RoleDelete(string id)
+        {
+            AppRole appRole = _roleManager.FindByIdAsync(id).Result;
+
+            if (appRole != null)
+            {
+                IdentityResult identityResult = _roleManager.DeleteAsync(appRole).Result;
+            }
+            return RedirectToAction("Roles");
+        }
+
         public IActionResult Users()
         {
             return View(_userManager.Users.ToList());
