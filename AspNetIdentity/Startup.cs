@@ -1,5 +1,6 @@
 ﻿using AspNetIdentity.CustomValidators;
 using AspNetIdentity.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +28,19 @@ namespace AspNetIdentity
             services.AddDbContext<AppIdentityDbContext>(options =>
             {
                 options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IstanbulPolicy", policy =>
+                {
+                    policy.RequireClaim("City", "Istanbul");
+                });
+                
+                options.AddPolicy("ViolencePolicy", policy =>
+                {
+                    policy.RequireClaim("Violence");
+                });
             });
 
             //Asp.Net Identity kütüphanesi ekleniyor.
@@ -65,6 +79,8 @@ namespace AspNetIdentity
                 options.SlidingExpiration = true;
                 options.AccessDeniedPath = new PathString("/Member/AccessDenied");
             });
+
+            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>();
 
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }

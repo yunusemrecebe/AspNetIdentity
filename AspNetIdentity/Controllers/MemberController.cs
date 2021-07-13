@@ -128,8 +128,21 @@ namespace AspNetIdentity.Controllers
             _signInManager.SignOutAsync();
         }
 
-        public IActionResult AccessDenied()
+        public IActionResult AccessDenied(string returnUrl)
         {
+            if (returnUrl.Contains("ViolencePage"))
+            {
+                ViewBag.message = "Erişmeye çalıştığınız sayfa şiddet içerikli videolar barındırdığından ötürü 15 yaşından küçüklerin erişimine uygun değildir!";
+            }
+            else if (returnUrl.Contains("IstanbulPage"))
+            {
+                ViewBag.message = "Erişmeye çalıştığınız sayfaya yalnızca İstanbul'da ikamet eden kullanıcılar erişebilir.";
+            }
+            else
+            {
+                ViewBag.message = "Bu sayfaya erişim izniniz yoktur. Erişim izni almak için sistem yöneticisi ile iletişime geçiniz";
+            }
+
             return View();
         }
 
@@ -141,6 +154,18 @@ namespace AspNetIdentity.Controllers
 
         [Authorize(Roles = "Manager, Admin")]
         public IActionResult Manager()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = "IstanbulPolicy")]
+        public IActionResult IstanbulPage()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = "ViolencePolicy")]
+        public IActionResult ViolencePage()
         {
             return View();
         }
