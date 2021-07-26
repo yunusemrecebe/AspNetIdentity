@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.IO;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AspNetIdentity.Controllers
@@ -138,6 +139,10 @@ namespace AspNetIdentity.Controllers
             {
                 ViewBag.message = "Erişmeye çalıştığınız sayfaya yalnızca İstanbul'da ikamet eden kullanıcılar erişebilir.";
             }
+            else if (returnUrl.Contains("Exchange"))
+            {
+                ViewBag.message = "30 günlük ücretsiz deneme hakkınız sona ermiştir!";
+            }
             else
             {
                 ViewBag.message = "Bu sayfaya erişim izniniz yoktur. Erişim izni almak için sistem yöneticisi ile iletişime geçiniz";
@@ -166,6 +171,28 @@ namespace AspNetIdentity.Controllers
 
         [Authorize(Policy = "ViolencePolicy")]
         public IActionResult ViolencePage()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> ExchangeRedirect()
+        {
+            bool result = User.HasClaim(x => x.Type == "ExpireDateExchange");
+
+            if (!result)
+            {
+                Claim expireDateExchange = new Claim("ExpireDateExchange", DateTime.Now.AddDays(30).Date.ToShortDateString(), ClaimValueTypes.String, "Internal");
+
+                await _userManager.AddClaimAsync(CurrentUser, expireDateExchange);
+                await _signInManager.SignOutAsync();
+                await _signInManager.SignInAsync(CurrentUser, true);
+            }
+
+            return RedirectToAction("Exchange");
+        }
+
+        [Authorize(Policy = "ExchangePolicy")]
+        public IActionResult Exchange()
         {
             return View();
         }

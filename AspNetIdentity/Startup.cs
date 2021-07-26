@@ -1,6 +1,7 @@
 ﻿using AspNetIdentity.CustomValidators;
 using AspNetIdentity.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,8 @@ namespace AspNetIdentity
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>();
+
             //DbContext Tanımlanıyor. ConnectionString 'appsettings.json' içerisinden alýnýyor.
             services.AddDbContext<AppIdentityDbContext>(options =>
             {
@@ -36,10 +39,15 @@ namespace AspNetIdentity
                 {
                     policy.RequireClaim("City", "Istanbul");
                 });
-                
+
                 options.AddPolicy("ViolencePolicy", policy =>
                 {
                     policy.RequireClaim("Violence");
+                });
+
+                options.AddPolicy("ExchangePolicy", policy =>
+                {
+                    policy.AddRequirements(new ExpireDateExchangeRequirement());
                 });
             });
 
